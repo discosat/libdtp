@@ -9,7 +9,7 @@
 #include "dtp/dtp_session.h"
 #include "dtp/dtp_log.h"
 
-int dtp_client_main(uint32_t server, uint16_t max_throughput, uint8_t timeout, uint8_t payload_id, uint16_t mtu, bool resume, dtp_t **out_session) {
+int dtp_client_main(uint32_t server, uint16_t max_throughput, uint8_t timeout, uint16_t payload_id, uint16_t mtu, bool resume, dtp_t **out_session) {
     dtp_t *session = NULL;
     dtp_result res = DTP_OK;
 

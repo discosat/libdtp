@@ -73,7 +73,7 @@ extern "C"
     } dtp_opt_timeout_cfg;
 
     typedef struct {
-        uint8_t value; /// Payload ID to retrieve
+        uint16_t value; /// Payload ID to retrieve
     } dtp_opt_payload_id_cfg;
 
     typedef struct {
@@ -280,7 +280,7 @@ extern "C"
 #pragma region Simplified Public API
  */
     extern int dtp_server_main(bool *keep_running);
-    extern int dtp_client_main(uint32_t server, uint16_t max_throughput, uint8_t timeout, uint8_t payload_id, uint16_t mtu, bool resume, dtp_t **session);
+    extern int dtp_client_main(uint32_t server, uint16_t max_throughput, uint8_t timeout, uint16_t payload_id, uint16_t mtu, bool resume, dtp_t **session);
 
 /*
 #pragma endregion

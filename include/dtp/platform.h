@@ -39,7 +39,7 @@ extern "C"
      * @param payload_id payload identifier
      * @return true if payload is valid and meta data filled in, false otherwise
      */
-    extern bool get_payload_meta(dtp_payload_meta_t *meta, uint8_t payload_id);
+    extern bool get_payload_meta(dtp_payload_meta_t *meta, uint16_t payload_id);
 
 #ifdef __cplusplus
 }

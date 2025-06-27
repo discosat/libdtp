@@ -31,40 +31,67 @@ Client-server communication
 .. aafigure::  :name: Communication Overview
   :scale: 2
 
- +---------+         +---------+
- |Client   |         |Server   |
- +----+----+         +----+----+
-      |                   .   |
-      |                   .   |
-      | transfer req (1)  .   |
-      |---------------------->|
-      |      resp         .   |
-      |<----------------------|                             
-                          .   .
-      .                   .   .
-                              .
-      |  datagram 1       |   .
-      |<------------------|   .
-      |  datagram 2       |   .   
-      |<------------------|   .
-      |                   |   .
-                              .
-      .                   .   .
-                              .
-      | datagram "n-1"    |   .
-      |<------------------|   .
-      |  datagram n       |   .
-      |X------------------|   .
-      |datagram "n+1"     |   .
-      |X------------------|   .
-      |datagram "n+2"     |   .
-      |X------------------|   .
-                              .
-      .                   .   .
-                              
-      |                   |   |
-      |                   |   |
-      |                   |   |
+ +-------------------+                                    +-------------------+
+ |     DTP Client    |                                    |     DTP Server    |
+ +-------------------+                                    +-------------------+
+ | - Control Socket  |                                    | - Control Socket  |
+ | - Data Socket     |                                    | - Data Socket     |
+ | - Session State   |                                    | - Payload Storage |
+ +--------+----------+                                    +--------+----------+
+          |                                                        |
+          |                                                        |
+          |                 CONTROL CHANNEL (CSP)                  |
+          |  +-------------------------------------------------+   |
+          |  |                                                 |   |
+          |  |  1. Transfer Request                            |   |
+          |  |     [payload_id, offset, length]                |   |
+          |  |------------------------------------------------>|   |
+          |  |                                                 |   |
+          |  |  2. Transfer Response                           |   |
+          |  |     [session_id, payload_size, transfer_size]   |   |
+          |  |<------------------------------------------------|   |
+          |  |                                                 |   |
+          |  +-------------------------------------------------+   |
+          |                                                        |
+          |                                                        |
+          |                  DATA CHANNEL (CSP)                    |
+          |  +-------------------------------------------------+   |
+          |  |                                                 |   |
+          |  |  3. Data Datagram 1                             |   |
+          |  |     [offset: 0x0000] + [data chunk]             |   |
+          |  |<------------------------------------------------|   |
+          |  |                                                 |   |
+          |  |  4. Data Datagram 2                             |   |
+          |  |     [offset: 0x0400] + [data chunk]             |   |
+          |  |<------------------------------------------------|   |
+          |  |                                                 |   |
+          |  |  5. Data Datagram 3                             |   |
+          |  |     [offset: 0x0800] + [data chunk]             |   |
+          |  |<------------------------------------------------|   |
+          |  |                                                 |   |
+          |  |              ... more datagrams ...             |   |
+          |  |                                                 |   |
+          |  |  n. Data Datagram N-1                           |   |
+          |  |     [offset: 0xXXXX] + [data chunk]             |   |
+          |  |<------------------------------------------------|   |
+          |  |                                                 |   |
+          |  |  n+1. Data Datagram N (LOST)                    |   |
+          |  |     [offset: 0xYYYY] + [data chunk]             |   |
+          |  |<-------------------X X X------------------------|   |
+          |  |                                                 |   |
+          |  |  n+2. Data Datagram N+1 (LOST)                  |   |
+          |  |     [offset: 0xZZZZ] + [data chunk]             |   |
+          |  |<-------------------X X X------------------------|   |
+          |  |                                                 |   |
+          |  +-------------------------------------------------+   |
+          |                                                        |
+          |                                                        |
+          |                    FEATURES:                           |
+          |  - Resumable: Can continue from any offset             |
+          |  - Interruptible: Can pause/stop transfers             |
+          |  - Eventually Reliable: Handles packet loss            |
+          |  - Immediate Access: Data available as received        |
+          +--------------------------------------------------------+
 
 
 * A client initiates a transfer by sending a request to the server using a CSP socket (referred to the `Control Socket` in the rest of this document).
